@@ -10,12 +10,20 @@ def main():
     orf2 = orf1[1:] # not including first character of string
     orf3 = orf1[2:] # not including first or second
 
+    print("\nTranslated Forward ORF1")
+    print(translateToAminoAcid(orf1))
+
     print("\nForward ORF1:")
-    print(translate(orf1))
+    print(orf1)
+    print("\tStart Codon Count: " + str(countStart(orf1)))
+
     print("\nForward ORF2:")
-    print(translate(orf2))
+    print(orf2)
+    print("\tStart Codon Count: " + str(countStart(orf2)))
+
     print("\nForward ORF3:")
-    print(translate(orf3))
+    print(orf3)
+    print("\tStart Codon Count: " + str(countStart(orf3)))
 
     orf1reversed = orf1[::-1] # reverse the string
 
@@ -24,14 +32,18 @@ def main():
     orf6 = orf1reversed[2:]
 
     print("\nReversed ORF1:")
-    print(translate(orf4))
-    print("\nReversed ORF2:")
-    print(translate(orf5))
-    print("\nReversed ORF3:")
-    print(translate(orf6))
+    print(orf4)
+    print("\tStart Codon Count: " + str(countStart(orf4)))
 
-def translate(dna):
-    '''
+    print("\nReversed ORF2:")
+    print(orf5)
+    print("\tStart Codon Count: " + str(countStart(orf5)))
+
+    print("\nReversed ORF3:")
+    print(orf6)
+    print("\tStart Codon Count: " + str(countStart(orf6)))
+
+def translateToAminoAcid(dna):
     rna = dna.replace('T', 'U')
 
     aa_sequence = ''
@@ -43,7 +55,15 @@ def translate(dna):
             aa_sequence += aa
 
     return aa_sequence
-    '''
-    return dna
+
+def countStart(dna):
+    rna = dna.replace('T', 'U')
+    count = 0
+    for i in range(0, len(rna), 3):
+        codon = rna[i:i + 3]
+        if codon == 'AUG':
+            count += 1
+
+    return count
 
 main()
