@@ -92,4 +92,25 @@ def countStart(dna):
 
     return count
 
+#outputs possible orfs of over length 50 codons and returns them as a list
+##of pairs of the index of the first and last basepair
+def possible_orfs(dna):
+    orf_list = []
+    position_of_last_start = 0
+    looking_for_start = True
+    for i in range(0, len(dna), 3):
+        codon = dna[i:i + 3]
+        
+        if codon == 'ATG' and looking_for_start == True:
+            looking_for_start = False
+            postion_of_last_start = i
+        if is_stop_codon(codon) and looking_for_start == False:
+            looking_for_start = True
+            if ((i+3) - postion_of_last_start) >= 50:
+                orf_list.append([postion_of_last_start, i + 3])
+    return orf_list
+
+def is_stop_codon(codon):
+    return codon == 'TAA' or codon == 'TAG' or codon == 'TGA'
+
 main()
