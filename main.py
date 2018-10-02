@@ -1,5 +1,6 @@
 from readfasta import readfasta
 from genetic_code import code
+from random import randint
 import glob, os
 
 def main():
@@ -7,48 +8,35 @@ def main():
 
     os.chdir(os.getcwd() + "/genes/")
     for file in glob.glob("*.fsa"):
-        print(file)
         gene = readfasta(file)[0][1]
-        processAllOrfs(gene)
+        orfs = getAllOrfs(gene)
+
+        randomORF = randint(0, 5)
+        ourORF = findBestORF(orfs)
+        actualORF = 1
+
+        print(file)
+        print("Random ORF: " + str(randomORF))
+        print("Our ORF Choice: " + str(ourORF))
+        print("Actual ORF: " + str(actualORF))
+        print()
+
+def findBestORF(orfs):
+    # PUT OUR CODE HERE
+    return randint(0, 5)
 
 
-def processAllOrfs(gene):
-    orf1 = gene
-    orf2 = orf1[1:] # not including first character of string
-    orf3 = orf1[2:] # not including first or second
+def getAllOrfs(gene):
+    orfList = []
+    orfList.append(gene)
+    orfList.append(gene[1:]) # not including first character of string
+    orfList.append(gene[2:]) # not including first or second
 
-    print("\nTranslated Forward ORF1")
-    print(translateToAminoAcid(orf1))
+    orfList.append(gene[::-1]) # reverse the string
+    orfList.append(gene[1::-1])
+    orfList.append(gene[2::-1])
 
-    print("\nForward ORF1:")
-    print(orf1)
-    print("\tStart Codon Count: " + str(countStart(orf1)))
-
-    print("\nForward ORF2:")
-    print(orf2)
-    print("\tStart Codon Count: " + str(countStart(orf2)))
-
-    print("\nForward ORF3:")
-    print(orf3)
-    print("\tStart Codon Count: " + str(countStart(orf3)))
-
-    orf1reversed = orf1[::-1] # reverse the string
-
-    orf4 = orf1reversed
-    orf5 = orf1reversed[1:]
-    orf6 = orf1reversed[2:]
-
-    print("\nReversed ORF1:")
-    print(orf4)
-    print("\tStart Codon Count: " + str(countStart(orf4)))
-
-    print("\nReversed ORF2:")
-    print(orf5)
-    print("\tStart Codon Count: " + str(countStart(orf5)))
-
-    print("\nReversed ORF3:")
-    print(orf6)
-    print("\tStart Codon Count: " + str(countStart(orf6)))
+    return orfList
 
 def translateToAminoAcid(dna):
     rna = dna.replace('T', 'U')
