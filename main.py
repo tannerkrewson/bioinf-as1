@@ -116,25 +116,24 @@ def at_rich_check(sequence, start_index):
 
 #3' splice site UAG or CAG
 #intron 5' sequence GTATGT
-def intron_start_seq(dna): 
+#Rian's Code
+def find_intron(dna): 
     rna = dna.replace('T', 'U')
+    pos_last_start = 0
+    looking_for_start = True
     count = 0
     for i in range(0, len(rna), 1):
         start_seq = rna[i:i + 6]
-        if start_seq == "GUAUGU":
-            count += 1
-            print("\nStart of intron at " + str(i))
-            
-    return count
-
-def intron_end_seq(dna): 
-    rna = dna.replace('T', 'U')
-    count = 0
-    for i in range(0, len(rna), 1):
         end_seq = rna[i:i + 3]
-        if end_seq == "UAG" or end_seq == "CAG":
+        if start_seq == "GUAUGU" and looking_for_start == True:
+            looking_for_start = False
+            pos_last_start = i
+            print("\nStart of intron at " + str(pos_last_start))
+        if (end_seq == "UAG" or end_seq == "CAG") and looking_for_start == False:
+            looking_for_start = True
+            pos_end = i + 3
             count += 1
-            print("\nEnd of intron at " + str(i))
+            print("\nEnd of intron at " + str(pos_end))
             
     return count
 
