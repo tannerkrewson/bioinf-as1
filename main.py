@@ -44,12 +44,14 @@ def findBestReadingFrame(rfs):
 
         # gets list of pairs of the start and stop indexes of the
         # possible orfs in the rf_number-th reading frame
-        porf = possible_orfs(rf_bases)
-        possible_orf_list.append(porf)
+        porfs = possible_orfs(rf_bases)
+        possible_orf_list.append(porfs)
 
-        # if it has a orf, increase the score
-        if (len(porf) > 0):
-            rf_scores[rf_number] = 1
+        # if the possible orfs are in an AT rich region, 
+        # increase the score
+        for porf in porfs:
+            if at_rich_check(rf_bases, porf[0]):
+                rf_scores[rf_number] = rf_scores[rf_number] + 1
 
     # get the index of the best reading frame score
     bestRF = rf_scores.index(max(rf_scores))
@@ -93,9 +95,10 @@ def possible_orfs(dna):
 def is_stop_codon(codon):
     return codon == 'TAA' or codon == 'TAG' or codon == 'TGA'
 
-def at_rich_check(start_index):
+def at_rich_check(sequence, start_index):
+    if start_index < 200:
+        return False
 
-    sequence = readfasta(filename)[0][1]
     at_rich_region = sequence[start_index - 200:start_index - 1]
     intergenic_region = sequence[start_index + 3:start_index + 202]
     
