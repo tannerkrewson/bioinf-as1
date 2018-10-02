@@ -30,32 +30,30 @@ def main():
     print("Random was right " + str(randomWasRight/numberOfFilesScanned * 100) + "% of the time")
 
 def findBestORF(orfs):
-    print()
-
     #
     # PUT OUR CODE HERE
     #
 
-    # example:
-    # counts number of start codons
-    # assumes that the more start codons there are, 
-    # the better the orf (not saying that's right,
-    # just an example)
+    orf_scores = [0, 0, 0, 0, 0, 0]
+    possible_orf_list = []
 
-    bestORF = 0
-    maxStartCodonAmount = 0
-    for idx, orf in enumerate(orfs):
-        orfStartCount = countStart(orf)
-        print("ORF" + str(idx) + " has " + str(orfStartCount) + " start codons")
+    for idx, reading_frame in enumerate(orfs):
+        thisOrfScore = 0
 
-        if orfStartCount >= maxStartCodonAmount:
-            bestORF = idx
-            maxStartCodonAmount = orfStartCount
+        porf = possible_orfs(reading_frame)
+        possible_orf_list.append(porf)
 
-    print("The best ORF is obviously ORF" + str(bestORF) + "!")
+        if (len(porf) > 0):
+            # if it has a orf, increase the score
+            orf_scores[idx] = 1
+
+    # get the index of the best reading frame score
+    bestORF = orf_scores.index(max(orf_scores))
+
+    print(orf_scores)
+    print("The best ORF is ORF" + str(bestORF) + "!")
 
     return bestORF
-
 def getAllOrfs(gene):
     orfList = []
     orfList.append(gene)
@@ -106,7 +104,7 @@ def possible_orfs(dna):
             postion_of_last_start = i
         if is_stop_codon(codon) and looking_for_start == False:
             looking_for_start = True
-            if ((i+3) - postion_of_last_start) >= 50:
+            if ((i+3) - postion_of_last_start) >= 50 * 3:
                 orf_list.append([postion_of_last_start, i + 3])
     return orf_list
 
