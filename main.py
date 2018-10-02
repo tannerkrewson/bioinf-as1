@@ -1,12 +1,19 @@
 from readfasta import readfasta
 from genetic_code import code
+import glob, os
 
 def main():
     print("Bioinformatics - Assignment 1 - Group 3")
-    print("Enter the name of the fasta file")
-    filename = input()
 
-    orf1 = readfasta(filename)[0][1]
+    os.chdir(os.getcwd() + "/genes/")
+    for file in glob.glob("*.fsa"):
+        print(file)
+        gene = readfasta(file)[0][1]
+        processAllOrfs(gene)
+
+
+def processAllOrfs(gene):
+    orf1 = gene
     orf2 = orf1[1:] # not including first character of string
     orf3 = orf1[2:] # not including first or second
 
