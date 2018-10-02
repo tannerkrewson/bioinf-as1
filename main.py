@@ -111,4 +111,22 @@ def possible_orfs(dna):
 def is_stop_codon(codon):
     return codon == 'TAA' or codon == 'TAG' or codon == 'TGA'
 
+def at_rich_check(start_index):
+
+    sequence = readfasta(filename)[0][1]
+    at_rich_region = sequence[start_index - 200:start_index - 1]
+    intergenic_region = sequence[start_index + 3:start_index + 202]
+    
+    rich_at_count = 0
+    for i in range(0, 199):
+        if at_rich_region[i] == 'A' or at_rich_region[i] == 'T':
+            rich_at_count += 1
+
+    intergenic_at_count = 0
+    for i in range(0, 199):
+        if intergenic_region[i] == 'A' or intergenic_region[i] == 'T':
+            intergenic_at_count += 1
+
+    return rich_at_count > intergenic_at_count
+
 main()
