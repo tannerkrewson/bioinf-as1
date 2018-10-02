@@ -6,20 +6,28 @@ import glob, os
 def main():
     print("Bioinformatics - Assignment 1 - Group 3")
 
+    randomWasRight = 0
+    weWereRight = 0
+    numberOfFilesScanned = 0
+    ACTUAL_ORF = 1
+
     os.chdir(os.getcwd() + "/genes/")
     for file in glob.glob("*.fsa"):
         gene = readfasta(file)[0][1]
         orfs = getAllOrfs(gene)
 
-        randomORF = randint(0, 5)
-        ourORF = findBestORF(orfs)
-        actualORF = 1
+        if randint(0, 5) == ACTUAL_ORF:
+            randomWasRight = randomWasRight + 1
 
-        print(file)
-        print("Random ORF: " + str(randomORF))
-        print("Our ORF Choice: " + str(ourORF))
-        print("Actual ORF: " + str(actualORF))
-        print()
+        if findBestORF(orfs) == ACTUAL_ORF:
+            weWereRight = weWereRight + 1
+
+        numberOfFilesScanned = numberOfFilesScanned + 1
+
+    print()
+    print(str(numberOfFilesScanned) + " genes scanned")
+    print("Our program was right " + str(weWereRight/numberOfFilesScanned * 100) + "% of the time")
+    print("Random was right " + str(randomWasRight/numberOfFilesScanned * 100) + "% of the time")
 
 def findBestORF(orfs):
     # PUT OUR CODE HERE
