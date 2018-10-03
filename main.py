@@ -4,7 +4,13 @@ from random import randint
 import glob, os
 
 def main():
-    print( "Bioinformatics - Assignment 1 - Group 3" )
+    print( "***\nBioinformatics - Assignment 1 - Group 3\n***\n" )
+
+    # for each fsa tested, a 0 will be added to the report card
+    # if random/our function picked the wrong reading frame, and 
+    # a 1 will be added if it picks the right reading frame
+    randoms_report_card = []
+    our_report_card = []
 
     random_was_right = 0
     we_were_right = 0
@@ -13,16 +19,23 @@ def main():
 
     os.chdir( os.getcwd() + "/genes/" )
     for file in glob.glob( "*.fsa" ):
+        print( file )
         gene = readfasta( file )[0][1]
         rfs = get_all_reading_frames( gene )
-        print( "\nThere are " + str( find_intron( gene ) ) + " introns" )
-        print( gene )
 
+        # if random picks the correct reading frame
         if randint( 0, 5 ) == ACTUAL_READING_FRAME:
             random_was_right = random_was_right + 1
+            randoms_report_card.append(1)
+        else:
+            randoms_report_card.append(0)
 
+        # if our algorithm picks the correct reading frame
         if find_best_reading_frame( rfs ) == ACTUAL_READING_FRAME:
             we_were_right = we_were_right + 1
+            our_report_card.append(1)
+        else:
+            our_report_card.append(0)
 
         number_of_files_scanned = number_of_files_scanned + 1
 
@@ -34,6 +47,9 @@ def main():
     print( "Random was right " +
            str( random_was_right/number_of_files_scanned * 100 )
            + "% of the time" )
+    print()
+    print( "Our report card: ", our_report_card )
+    print( "Random's report card: ", randoms_report_card )
 
 def find_best_reading_frame( rfs ):
     #
@@ -46,6 +62,9 @@ def find_best_reading_frame( rfs ):
     # rf_number: the six possible reading frames, 0 through 5
     # rf_bases: a string with all the bases of the reading frame
     for rf_number, rf_bases in enumerate( rfs ):
+
+        # print( "\nThere are " + str( find_intron( rf_bases ) ) + " introns" )
+
         this_rf_score = 0
 
         # gets list of pairs of the start and stop indexes of the
@@ -62,8 +81,9 @@ def find_best_reading_frame( rfs ):
     # get the index of the best reading frame score
     best_rf = rf_scores.index( max( rf_scores ) )
 
-    print( rf_scores )
-    print( "The best ORF is ORF" + str( best_rf ) + "!" )
+    print( "Reading frame scores: ", rf_scores )
+    print( "^^Best ORF is ORF" + str( best_rf ) + "!" )
+    print()
 
     return best_rf
 
@@ -135,12 +155,12 @@ def find_intron( dna ):
         if start_seq == "GUAUGU" and looking_for_start == True:
             looking_for_start = False
             pos_last_start = i
-            print( "\nStart of intron at " + str( pos_last_start ) )
+            # print( "\nStart of intron at " + str( pos_last_start ) )
         if ( end_seq == "UAG" or end_seq == "CAG" ) and looking_for_start == False:
             looking_for_start = True
             pos_end = i + 3 # Add 3 to see where the last base of the stop is
             count += 1
-            print( "\nEnd of intron at " + str( pos_end ) )
+            # print( "\nEnd of intron at " + str( pos_end ) )
             
     return count
 
