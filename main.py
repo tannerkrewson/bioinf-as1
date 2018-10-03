@@ -152,16 +152,19 @@ def find_intron( dna ):
     for i in range( 0, len( rna ), 1 ):
         start_seq = rna[ i:i + 6 ]
         end_seq = rna[ i:i + 3 ]
-        if start_seq == "GUAUGU" and looking_for_start == True:
+        if ( start_seq == "GUAUGU" or start_seq == "GUACGU" or
+             start_seq == "GUAUGA" or start_seq == "GUAUGC" or
+             start_seq == "GCAUGU" ) and looking_for_start == True:
             looking_for_start = False
             pos_last_start = i
-            # print( "\nStart of intron at " + str( pos_last_start ) )
-        if ( end_seq == "UAG" or end_seq == "CAG" ) and looking_for_start == False:
+            print( "\nStart of intron at " + str( pos_last_start ) )
+        if ( end_seq == "UAG" or end_seq == "CAG" or  end_seq == "AAG" ) and looking_for_start == False:
             looking_for_start = True
             pos_end = i + 3 # Add 3 to see where the last base of the stop is
             count += 1
-            # print( "\nEnd of intron at " + str( pos_end ) )
+            print( "\nEnd of intron at " + str( pos_end ) )
             
     return count
+
 
 main()
