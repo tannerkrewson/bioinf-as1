@@ -83,7 +83,14 @@ def find_best_reading_frame( rfs ):
         # if the possible orfs are in an AT rich region, 
         # increase the score
         for porf in porfs:
+            # if the region before the potential orf is AT rich,
+            # give this reading frame a point
             if at_rich_check(rf_bases, "start", porf[0]):
+                rf_scores[rf_number] = rf_scores[rf_number] + 1
+
+            # if the region after the potential orf is AT rich,
+            # give this reading frame a point
+            if at_rich_check(rf_bases, "stop", porf[1]):
                 rf_scores[rf_number] = rf_scores[rf_number] + 1
 
     # get the index of the best reading frame score
@@ -135,14 +142,12 @@ def is_stop_codon( codon ):
 #end is the end of the range to check
 #returns a float in the range 0-100
 def at_rich_percentage(sequence, start, end):
-
-    region = sequence[start:stop]
+    region = sequence[start:end]
 
     at_count = 0
     for i in range(0, len(region) - 1):
         if region[i] == 'A' or region[i] == 'T':
             at_count += 1
-
     return (at_count/len(region)) * 100
 
 #correctly calls at_rich_percentage() for check_type
@@ -160,24 +165,27 @@ def at_rich_percentage(sequence, start, end):
 #error input returns False
 def at_rich_check(sequence, check_type, start_index, stop_index = 0):
 
-    if(check_type == "intron")
+    if start_index - 200 < 0:
+        return False
+
+    if check_type == "intron":
         region_composition = at_rich_percentage(sequence, \
                                                 start_index, \
                                                 stop_index)
-    elif(check_type == "start")
+    elif check_type == "start":
         region_composition = at_rich_percentage(sequence, \
                                                 start_index - 200, \
                                                 start_index - 1)
-    elif(check_type == "stop")
+    elif check_type == "stop":
         region_composition = at_rich_percentage(sequence, \
                                                 start_index + 1, \
                                                 start_index + 200)
-    else
+    else:
         return False
 
-    if(check_type == "intron")
+    if check_type == "intron":
         return region_composition > 68.5
-    else
+    else:
         return region_composition > 63
 
 #3' splice site UAG or CAG
