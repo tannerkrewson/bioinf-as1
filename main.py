@@ -1,7 +1,6 @@
 from readfasta import readfasta
 from genetic_code import code
 from random import randint
-from scipy import stats
 import glob, os
 
 def main():
@@ -51,14 +50,6 @@ def main():
     print()
     print( "Our report card: ", our_report_card )
     print( "Random's report card: ", randoms_report_card )
-
-    ourStats = stats.ttest_ind(randoms_report_card,our_report_card)
-    print("The p-value is " + str(ourStats.pvalue))
-
-    if ourStats.pvalue < 0.05:
-        print("Our program did statistically significantly better!  Woot!")
-    else:
-        print("Our program sucks...")
 
 def find_best_reading_frame( rfs ):
     #
@@ -162,18 +153,18 @@ def find_intron( dna ):
         start_seq = rna[ i:i + 6 ]
         end_seq = rna[ i:i + 3 ]
         if ( start_seq == "GUAUGU" or start_seq == "GUACGU" or
-             start_seq == "GUAUGA" or start_seq == "GUAUGC" or
-             start_seq == "GCAUGU" ) and looking_for_start == True:
+             start_seq == "GUAUGA" ) and looking_for_start == True:
             looking_for_start = False
             pos_last_start = i
             print( "\nStart of intron at " + str( pos_last_start ) )
-        if ( end_seq == "UAG" or end_seq == "CAG" or  end_seq == "AAG" ) and looking_for_start == False:
+        if ( end_seq == "UAG" or end_seq == "CAG" ) and looking_for_start == False:
             looking_for_start = True
             pos_end = i + 3 # Add 3 to see where the last base of the stop is
             count += 1
             print( "\nEnd of intron at " + str( pos_end ) )
             
     return count
+
 
 
 main()
