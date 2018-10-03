@@ -83,7 +83,7 @@ def find_best_reading_frame( rfs ):
         # if the possible orfs are in an AT rich region, 
         # increase the score
         for porf in porfs:
-            if at_rich_check(rf_bases, porf[0]):
+            if at_rich_check(rf_bases, "start", porf[0]):
                 rf_scores[rf_number] = rf_scores[rf_number] + 1
 
     # get the index of the best reading frame score
@@ -129,24 +129,56 @@ def possible_orfs( dna ):
 def is_stop_codon( codon ):
     return codon == 'TAA' or codon == 'TAG' or codon == 'TGA'
 
-def at_rich_check( sequence, start_index ):
-    if start_index < 200:
+#computes the percentage of As and Ts in the region
+#sequence is a string of nucleotide bases, the sequence to be analyzed
+#start is the beginning of the range to check
+#end is the end of the range to check
+#returns a float in the range 0-100
+def at_rich_percentage(sequence, start, end):
+
+    region = sequence[start:stop]
+
+    at_count = 0
+    for i in range(0, len(region) - 1):
+        if region[i] == 'A' or region[i] == 'T':
+            at_count += 1
+
+    return (at_count/len(region)) * 100
+
+#correctly calls at_rich_percentage() for check_type
+#sequence is a string of nucleotide bases, the sequence to be analyzed
+#check_type is a string "intron", "start", or "stop"
+#  for the type of check wanted
+#start_index is the index of the start codon, stop codon, 
+#  or the start of the intron
+#stop_index is the index of the end of the intron,
+#  only necessary for intron checks
+#returns a boolean value that represents if the check type was within
+#  the richness bounds
+#richness bounds chosen based on upper limits of at-richness observed
+#  in various tests of region types
+#error input returns False
+def at_rich_check(sequence, check_type, start_index, stop_index = 0):
+
+    if(check_type == "intron")
+        region_composition = at_rich_percentage(sequence, \
+                                                start_index, \
+                                                stop_index)
+    elif(check_type == "start")
+        region_composition = at_rich_percentage(sequence, \
+                                                start_index - 200, \
+                                                start_index - 1)
+    elif(check_type == "stop")
+        region_composition = at_rich_percentage(sequence, \
+                                                start_index + 1, \
+                                                start_index + 200)
+    else
         return False
 
-    at_rich_region = sequence[ start_index - 200:start_index - 1 ]
-    intergenic_region = sequence[ start_index + 3:start_index + 202 ]
-    
-    rich_at_count = 0
-    for i in range( 0, 199 ):
-        if at_rich_region[ i ] == 'A' or at_rich_region[ i ] == 'T':
-            rich_at_count += 1
-
-    intergenic_at_count = 0
-    for i in range( 0, 199 ):
-        if intergenic_region[ i ] == 'A' or intergenic_region[ i ] == 'T':
-            intergenic_at_count += 1
-
-    return rich_at_count > intergenic_at_count
+    if(check_type == "intron")
+        return region_composition > 68.5
+    else
+        return region_composition > 63
 
 #3' splice site UAG or CAG
 #intron 5' sequence GTATGT
