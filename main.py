@@ -70,10 +70,10 @@ def find_best_reading_frame( rfs ):
     # rf_number: the six possible reading frames, 0 through 5
     # rf_bases: a string with all the bases of the reading frame
     for rf_number, rf_bases in enumerate( rfs ):
-
-        # print( "\nThere are " + str( find_intron( rf_bases ) ) + " introns" )
-
         this_rf_score = 0
+
+        # remove introns from the sequence
+        rf_bases = remove_introns(rf_bases)
 
         # gets list of pairs of the start and stop indexes of the
         # possible orfs in the rf_number-th reading frame
@@ -191,28 +191,36 @@ def at_rich_check(sequence, check_type, start_index, stop_index = 0):
 #3' splice site UAG or CAG
 #intron 5' sequence GTATGT
 #Rian's Code
-def find_intron( dna ): 
-    rna = dna.replace( 'T', 'U' )
+def remove_introns( dna ): 
     pos_last_start = 0
     looking_for_start = True # while true, look for first start and ignore stops,
                              # if false, look until stop is found
-    count = 0
-    for i in range( 0, len( rna ), 1 ):
-        start_seq = rna[ i:i + 6 ]
-        end_seq = rna[ i:i + 3 ]
-        if ( start_seq == "GUAUGU" or start_seq == "GUACGU" or
-             start_seq == "GUAUGA" ) and looking_for_start == True:
+    intron_list = []
+    for i in range( 0, len( dna ), 1 ):
+        start_seq = dna[ i:i + 6 ]
+        end_seq = dna[ i:i + 3 ]
+        if ( start_seq == "GTATGT" or start_seq == "GTACGT" or
+             start_seq == "GTATGA" ) and looking_for_start == True:
             looking_for_start = False
             pos_last_start = i
-            print( "\nStart of intron at " + str( pos_last_start ) )
-        if ( end_seq == "UAG" or end_seq == "CAG" ) and looking_for_start == False:
+            # print( "\nStart of intron at " + str( pos_last_start ) )
+        if ( end_seq == "TAG" or end_seq == "CAG" ) and looking_for_start == False:
             looking_for_start = True
             pos_end = i + 3 # Add 3 to see where the last base of the stop is
-            count += 1
-            print( "\nEnd of intron at " + str( pos_end ) )
+
+            # if the possible intron is AT rich, then count it as a possible intron
+            if at_rich_check(dna, "intron", pos_last_start, pos_end):
+                intron_list.append([pos_last_start, pos_end])
+
+            # print( "\nEnd of intron at " + str( pos_end ) )
+
+    total_introns_length = 0
+    for intron_pair in intron_list:
+        intron_pair[0] -= total_introns_length
+        intron_pair[1] -= total_introns_length
+        dna = dna[:intron_pair[0]] + dna[intron_pair[1]:]
+        total_introns_length += intron_pair[1] - intron_pair[0]
             
-    return count
-
-
+    return dna
 
 main()
