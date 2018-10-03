@@ -1,6 +1,7 @@
 from readfasta import readfasta
 from genetic_code import code
 from random import randint
+from scipy import stats
 import glob, os
 
 def main():
@@ -50,6 +51,13 @@ def main():
     print()
     print( "Our report card: ", our_report_card )
     print( "Random's report card: ", randoms_report_card )
+
+    ourStats = stats.ttest_ind(randoms_report_card,our_report_card)
+    print("The p-value is " + str(ourStats.pvalue))
+    if ourStats.pvalue < 0.05:
+        print("Our program did statistically significantly better!  Woot!")
+    else:
+        print("Our program sucks...")
 
 def find_best_reading_frame( rfs ):
     #
