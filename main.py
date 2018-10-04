@@ -234,7 +234,7 @@ def at_rich_check(sequence, check_type, start_index, stop_index = 0):
         return False
 
     if check_type == "intron":
-        return region_composition > 68.5
+        return region_composition > 70
     else:
         return region_composition > 63
 
