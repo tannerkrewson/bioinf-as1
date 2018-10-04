@@ -97,7 +97,7 @@ def find_best_reading_frame( rfs ):
     best_rf = rf_scores.index( max( rf_scores ) )
 
     print( "Reading frame scores: ", rf_scores )
-    print( "^^Best ORF is ORF" + str( best_rf ) + "!" )
+    print( "So, best reading frame is RF" + str( convertRFIndex( best_rf ) ) )
     print()
 
     return best_rf
@@ -222,5 +222,13 @@ def remove_introns( dna ):
         total_introns_length += intron_pair[1] - intron_pair[0]
             
     return dna
+
+# converts  0, 1, 2, 3, 4, 5
+#       to  1+,2+,3+,1-,2-,3-
+def convertRFIndex(rf_index):
+    if (rf_index < 3):
+        return str( rf_index+1 ) + "+"
+    else:
+        return str( rf_index-2 ) + "-"
 
 main()
