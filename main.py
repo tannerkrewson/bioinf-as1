@@ -1,5 +1,4 @@
 from readfasta import readfasta
-from genetic_code import code
 from random import randint
 from scipy import stats
 import glob, os
@@ -16,10 +15,15 @@ def main():
     random_was_right = 0
     we_were_right = 0
     number_of_files_scanned = 0
+
+    # the actual reading frame of all fsa we input is always 2+
+    # which is represented by the index 1
     ACTUAL_READING_FRAME = 1
 
+    # scan in all fsa files in the "genes" directory
     os.chdir( os.getcwd() + "/genes/" )
     for file in glob.glob( "*.fsa" ):
+
         print( file )
         gene = readfasta( file )[0][1]
         rfs = get_all_reading_frames( gene )
@@ -40,30 +44,27 @@ def main():
 
         number_of_files_scanned = number_of_files_scanned + 1
 
-    print()
-    print( str( number_of_files_scanned ) + " genes scanned" )
-    print( "Our program was right " +
-          str( we_were_right/number_of_files_scanned * 100 )
-           + "% of the time" )
-    print( "Random was right " +
-           str( random_was_right/number_of_files_scanned * 100 )
-           + "% of the time" )
-    print()
+    print( "*****\n" )
+    print( number_of_files_scanned, "genes scanned" )
+
+    percent_we_were_right = we_were_right/number_of_files_scanned * 100
+    percent_rand_was_right = random_was_right/number_of_files_scanned * 100
+
+    print( "Our code was right ", percent_we_were_right, "% of the time" )
+    print( "Random was right ", percent_rand_was_right, "% of the time\n" )
+
     print( "Our report card: ", our_report_card )
     print( "Random's report card: ", randoms_report_card )
 
     ourStats = stats.ttest_ind(randoms_report_card,our_report_card)
     print("The p-value is " + str(ourStats.pvalue))
+
     if ourStats.pvalue < 0.05:
         print("Our program did statistically significantly better!  Woot!")
     else:
-        print("Our program sucks...")
+        print("We did not do statistically significantly better than random")
 
 def find_best_reading_frame( rfs ):
-    #
-    # PUT OUR CODE HERE
-    #
-
     rf_scores = [0, 0, 0, 0, 0, 0]
     possible_orf_list = []
 
@@ -97,11 +98,13 @@ def find_best_reading_frame( rfs ):
     best_rf = rf_scores.index( max( rf_scores ) )
 
     print( "Reading frame scores: ", rf_scores )
-    print( "So, best reading frame is RF" + str( convertRFIndex( best_rf ) ) )
+    print( "So, best reading frame is RF" + str( convert_rf_index( best_rf ) ) )
     print()
 
     return best_rf
 
+# generates all six reading frames by shifting and reversing the gene
+# and returns them in a list
 def get_all_reading_frames( gene ):
     rf_list = []
     rf_list.append( gene )
@@ -115,8 +118,8 @@ def get_all_reading_frames( gene ):
 
     return rf_list
 
-#outputs possible orfs of over length 50 codons and returns them as a list
-##of pairs of the index of the first and last basepair
+# outputs possible orfs of over length 50 codons and returns them as a list
+# of pairs of the index of the first and last basepair
 def possible_orfs( dna ):
     orf_list = []
     position_of_last_start = 0
@@ -129,7 +132,7 @@ def possible_orfs( dna ):
             postion_of_last_start = i
         if is_stop_codon( codon ) and looking_for_start == False:
             looking_for_start = True
-            if ( ( i+3 ) - postion_of_last_start ) >= 50 * 3:
+            if ( ( i + 3 ) - postion_of_last_start ) >= 50 * 3:
                 orf_list.append( [postion_of_last_start, i + 3] )
     return orf_list
 
@@ -150,18 +153,19 @@ def at_rich_percentage(sequence, start, end):
             at_count += 1
     return (at_count/len(region)) * 100
 
-#correctly calls at_rich_percentage() for check_type
-#sequence is a string of nucleotide bases, the sequence to be analyzed
-#check_type is a string "intron", "start", or "stop"
-#  for the type of check wanted
-#start_index is the index of the start codon, stop codon, 
-#  or the start of the intron
-#stop_index is the index of the end of the intron,
-#  only necessary for intron checks
-#returns a boolean value that represents if the check type was within
-#  the richness bounds
-#richness bounds chosen based on upper limits of at-richness observed
-#  in various tests of region types
+# correctly calls at_rich_percentage() for check_type sequence is a 
+#     string of nucleotide bases, the sequence to be analyzed
+# 
+# check_type is a string "intron", "start", or "stop"
+#     for the type of check wanted
+# start_index is the index of the start codon, stop codon, 
+#     or the start of the intron
+# stop_index is the index of the end of the intron,
+#     only necessary for intron checks
+# returns a boolean value that represents if the check type was within
+#     the richness bounds
+# richness bounds chosen based on upper limits of at-richness observed
+#     in various tests of region types
 #error input returns False
 def at_rich_check(sequence, check_type, start_index, stop_index = 0):
 
@@ -188,31 +192,40 @@ def at_rich_check(sequence, check_type, start_index, stop_index = 0):
     else:
         return region_composition > 63
 
-#3' splice site UAG or CAG
-#intron 5' sequence GTATGT
-#Rian's Code
+# 3' splice site UAG or CAG
+# intron 5' sequence GTATGT
+# Rian's Code
 def remove_introns( dna ): 
-    pos_last_start = 0
-    looking_for_start = True # while true, look for first start and ignore stops,
-                             # if false, look until stop is found
+    # while true, look for first start and ignore stops,
+    # if false, look until stop is found
+    looking_for_start = True 
+
     intron_list = []
+    pos_last_start = 0
     for i in range( 0, len( dna ), 1 ):
         start_seq = dna[ i:i + 6 ]
         end_seq = dna[ i:i + 3 ]
-        if ( start_seq == "GTATGT" or start_seq == "GTACGT" or
-             start_seq == "GTATGA" ) and looking_for_start == True:
+
+        is_intron_start = start_seq == "GTATGT" \
+            or start_seq == "GTACGT" \
+            or start_seq == "GTATGA"
+
+        is_intron_end = end_seq == "TAG" or end_seq == "CAG"
+
+        if is_intron_start and looking_for_start:
             looking_for_start = False
             pos_last_start = i
-            # print( "\nStart of intron at " + str( pos_last_start ) )
-        if ( end_seq == "TAG" or end_seq == "CAG" ) and looking_for_start == False:
+        
+        if is_intron_end and not looking_for_start:
             looking_for_start = True
-            pos_end = i + 3 # Add 3 to see where the last base of the stop is
 
-            # if the possible intron is AT rich, then count it as a possible intron
+            # Add 3 to see where the last base of the stop is
+            pos_end = i + 3
+
+            # if the possible intron is AT rich, then count it as a
+            # possible intron
             if at_rich_check(dna, "intron", pos_last_start, pos_end):
                 intron_list.append([pos_last_start, pos_end])
-
-            # print( "\nEnd of intron at " + str( pos_end ) )
 
     total_introns_length = 0
     for intron_pair in intron_list:
@@ -225,7 +238,7 @@ def remove_introns( dna ):
 
 # converts  0, 1, 2, 3, 4, 5
 #       to  1+,2+,3+,1-,2-,3-
-def convertRFIndex(rf_index):
+def convert_rf_index(rf_index):
     if (rf_index < 3):
         return str( rf_index+1 ) + "+"
     else:
