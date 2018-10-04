@@ -168,7 +168,16 @@ def possible_orfs( dna ):
 
 
 '''
-score_orf: 
+score_orf: makes an educated guess on the likeliness that the given 
+    possible orf is the actual orf
+
+Parameters:
+    bases: a string of the nucleotides of the whole reading frame, 
+        not just the possible orf
+    orf_start: the beginning index of the orf
+    orf_stop: the ending index of the orf
+
+Returns: a score between 0 and 6
 '''
 def score_orf ( bases, orf_start, orf_stop ):
     score = 0
