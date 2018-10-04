@@ -3,8 +3,12 @@ from random import randint
 from scipy import stats
 import glob, os
 
+'''
+main: read in the fasta files, run our algorithm to guess the reading
+    frame, and statistically compare it to random
+'''
 def main():
-    print( "***\nBioinformatics - Assignment 1 - Group 3\n***\n" )
+    print( "*****\nBioinformatics - Assignment 1 - Group 3\n*****\n" )
 
     # for each fsa tested, a 0 will be added to the report card
     # if random/our function picked the wrong reading frame, and 
@@ -50,6 +54,9 @@ def main():
     percent_we_were_right = we_were_right/number_of_files_scanned * 100
     percent_rand_was_right = random_was_right/number_of_files_scanned * 100
 
+    percent_we_were_right = round( percent_we_were_right, 3 )
+    percent_rand_was_right = round( percent_rand_was_right, 3 )
+
     print( "Our code was right ", percent_we_were_right, "% of the time" )
     print( "Random was right ", percent_rand_was_right, "% of the time\n" )
 
@@ -64,6 +71,15 @@ def main():
     else:
         print("We did not do statistically significantly better than random")
 
+
+'''
+find_best_reading_frame: finds the best out of the six reading frames using 
+    our algorithm
+
+Parameter: a list of the six reading frames as strings of nucleotides
+
+Return: the index of the reading frame our algorithm selected, 0 through 5
+'''
 def find_best_reading_frame( rfs ):
     rf_scores = [0, 0, 0, 0, 0, 0]
     possible_orf_list = []
@@ -98,13 +114,20 @@ def find_best_reading_frame( rfs ):
     best_rf = rf_scores.index( max( rf_scores ) )
 
     print( "Reading frame scores: ", rf_scores )
-    print( "So, best reading frame is RF" + str( convert_rf_index( best_rf ) ) )
+    print( "So, best reading frame guess is RF" + str( convert_rf_index( best_rf ) ) )
     print()
 
     return best_rf
 
-# generates all six reading frames by shifting and reversing the gene
-# and returns them in a list
+
+'''
+get_all_reading_frames: generates all six reading frames by shifting and
+    reversing the gene and returns them in a list
+
+Parameter: the non-shifted string of nucleotides
+
+Returns: a list of the six reading frames
+'''
 def get_all_reading_frames( gene ):
     rf_list = []
     rf_list.append( gene )
@@ -118,8 +141,14 @@ def get_all_reading_frames( gene ):
 
     return rf_list
 
-# outputs possible orfs of over length 50 codons and returns them as a list
-# of pairs of the index of the first and last basepair
+
+'''
+possible_orfs: finds the possible orfs of the given gene
+
+Parameter: the string of nucleotides to find orfs in
+
+Returns: a list of pairs of the index of the first and last nucleotide
+'''
 def possible_orfs( dna ):
     orf_list = []
     position_of_last_start = 0
@@ -136,15 +165,29 @@ def possible_orfs( dna ):
                 orf_list.append( [postion_of_last_start, i + 3] )
     return orf_list
 
+
+'''
+is_stop_codon: returns true if the given codon is a stop codon
+
+Parameter: a three-base codon
+
+Returns: true if the given codon is a stop codon 
+'''
 def is_stop_codon( codon ):
     return codon == 'TAA' or codon == 'TAG' or codon == 'TGA'
 
-#computes the percentage of As and Ts in the region
-#sequence is a string of nucleotide bases, the sequence to be analyzed
-#start is the beginning of the range to check
-#end is the end of the range to check
-#returns a float in the range 0-100
-def at_rich_percentage(sequence, start, end):
+
+'''
+at_rich_percentage: computes the percentage of As and Ts in the region
+    
+Parameters:
+    sequence: a string of nucleotide bases, the sequence to be analyzed
+    start: the beginning of the range to check
+    end: the end of the range to check
+
+Returns: a float in the range 0-100
+'''
+def at_rich_percentage( sequence, start, end ):
     region = sequence[start:end]
 
     at_count = 0
@@ -153,20 +196,23 @@ def at_rich_percentage(sequence, start, end):
             at_count += 1
     return (at_count/len(region)) * 100
 
-# correctly calls at_rich_percentage() for check_type sequence is a 
-#     string of nucleotide bases, the sequence to be analyzed
-# 
-# check_type is a string "intron", "start", or "stop"
-#     for the type of check wanted
-# start_index is the index of the start codon, stop codon, 
-#     or the start of the intron
-# stop_index is the index of the end of the intron,
-#     only necessary for intron checks
-# returns a boolean value that represents if the check type was within
-#     the richness bounds
-# richness bounds chosen based on upper limits of at-richness observed
-#     in various tests of region types
-#error input returns False
+
+'''
+at_rich_check: calls at_rich_percentage() for check_type
+
+Parameters:
+    sequence: a string of nucleotide bases, the sequence to be analyzed
+    check_type: a string "intron", "start", or "stop", for the type of check 
+        wanted
+    start_index: the index of the start codon, stop codon, or the start of 
+        the intron
+    stop_index: the index of the end of the intron, only necessary for 
+        intron checks
+
+Returns: a boolean value that represents if the check type was within
+    the richness bounds, which are chosen based on upper limits of 
+    at-richness observed in various tests of region types
+'''
 def at_rich_check(sequence, check_type, start_index, stop_index = 0):
 
     if start_index - 200 < 0:
@@ -192,9 +238,16 @@ def at_rich_check(sequence, check_type, start_index, stop_index = 0):
     else:
         return region_composition > 63
 
-# 3' splice site UAG or CAG
-# intron 5' sequence GTATGT
-# Rian's Code
+
+'''
+remove_introns: removes introns from the given string of nucleotides
+
+Parameter: a string of nucleotides
+
+Returns: the same string of nucleotides, except with the potential 
+    introns removed. note that the reading frame of nucleotides that 
+    come after any removed introns is not preserved
+'''
 def remove_introns( dna ): 
     # while true, look for first start and ignore stops,
     # if false, look until stop is found
@@ -206,10 +259,12 @@ def remove_introns( dna ):
         start_seq = dna[ i:i + 6 ]
         end_seq = dna[ i:i + 3 ]
 
+        # intron 5' start sequence
         is_intron_start = start_seq == "GTATGT" \
             or start_seq == "GTACGT" \
             or start_seq == "GTATGA"
 
+        # 3' splice site
         is_intron_end = end_seq == "TAG" or end_seq == "CAG"
 
         if is_intron_start and looking_for_start:
@@ -236,10 +291,18 @@ def remove_introns( dna ):
             
     return dna
 
-# converts  0, 1, 2, 3, 4, 5
-#       to  1+,2+,3+,1-,2-,3-
-def convert_rf_index(rf_index):
-    if (rf_index < 3):
+
+'''
+convert_rf_index:
+    converts  0, 1, 2, 3, 4, 5
+          to  1+,2+,3+,1-,2-,3-
+
+Parameter: the index of the reading frame, 0 through 5
+
+Returns: the corresponding human-readable reading frame number
+'''
+def convert_rf_index( rf_index ):
+    if rf_index < 3:
         return str( rf_index+1 ) + "+"
     else:
         return str( rf_index-2 ) + "-"
