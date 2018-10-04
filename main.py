@@ -82,7 +82,6 @@ Return: the index of the reading frame our algorithm selected, 0 through 5
 '''
 def find_best_reading_frame( rfs ):
     rf_scores = [0, 0, 0, 0, 0, 0]
-    possible_orf_list = []
 
     # rf_number: the six possible reading frames, 0 through 5
     # rf_bases: a string with all the bases of the reading frame
@@ -95,20 +94,22 @@ def find_best_reading_frame( rfs ):
         # gets list of pairs of the start and stop indexes of the
         # possible orfs in the rf_number-th reading frame
         porfs = possible_orfs(rf_bases)
-        possible_orf_list.append(porfs)
 
-        # if the possible orfs are in an AT rich region, 
-        # increase the score
+        # will hold the scores of all possible orfs
+        # 0 is added to be the minimum score
+        porf_scores = [ 0 ]
+
+        # find and record the score of how confident we are in 
+        # the viability of each possible reading frames
         for porf in porfs:
-            # if the region before the potential orf is AT rich,
-            # give this reading frame a point
-            if at_rich_check(rf_bases, "start", porf[0]):
-                rf_scores[rf_number] = rf_scores[rf_number] + 1
+            this_porf_score = score_orf( rf_bases, porf[0], porf[1] )
+            porf_scores.append( this_porf_score )
 
-            # if the region after the potential orf is AT rich,
-            # give this reading frame a point
-            if at_rich_check(rf_bases, "stop", porf[1]):
-                rf_scores[rf_number] = rf_scores[rf_number] + 1
+        best_orf_score = max( porf_scores )
+
+        # set the score of this reading frame to the score of our guess 
+        # for the most viable orf in this reading frame
+        rf_scores[rf_number] = best_orf_score
 
     # get the index of the best reading frame score
     best_rf = rf_scores.index( max( rf_scores ) )
@@ -166,6 +167,41 @@ def possible_orfs( dna ):
     return orf_list
 
 
+'''
+score_orf: 
+'''
+def score_orf ( bases, orf_start, orf_stop ):
+    score = 0
+    orf_length = orf_stop - orf_start
+
+    # ORF length scoring:
+    # 50-99:   1 point
+    # 100-149: 2 points
+    # 150-199: 3 points
+    # 200+:    4 points
+
+    if orf_length >= 50:
+        score += 1
+    if orf_length >= 100:
+        score += 1
+    if orf_length >= 150:
+        score += 1
+    if orf_length >= 200:
+        score += 1
+
+    # if the region before the potential orf is AT rich,
+    # give this orf a point
+    if at_rich_check( bases, "start", orf_start ):
+        score += 1
+
+    # if the region after the potential orf is AT rich,
+    # give this orf a point
+    if at_rich_check( bases, "stop", orf_stop ):
+        score += 1
+
+    return score
+
+    
 '''
 is_stop_codon: returns true if the given codon is a stop codon
 
