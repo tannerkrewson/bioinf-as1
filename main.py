@@ -189,13 +189,13 @@ def score_orf ( bases, orf_start, orf_stop ):
     # 150-199: 3 points
     # 200+:    4 points
 
-    if orf_length >= 50:
+    if orf_length >= 50*3:
         score += 1
-    if orf_length >= 100:
+    if orf_length >= 100*3:
         score += 1
-    if orf_length >= 150:
+    if orf_length >= 150*3:
         score += 1
-    if orf_length >= 200:
+    if orf_length >= 200*3:
         score += 1
 
     # if the region before the potential orf is AT rich,
