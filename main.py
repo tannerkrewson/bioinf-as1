@@ -208,6 +208,8 @@ def score_orf ( bases, orf_start, orf_stop ):
     if at_rich_check( bases, "stop", orf_stop ):
         score += 1
 
+    # if a polyadenylation sequence is found after the orf,
+    # give this orf a point
     if find_polya_sequence(bases, orf_stop):
         score += 1
 
@@ -286,6 +288,16 @@ def at_rich_check(sequence, check_type, start_index, stop_index = 0):
     else:
         return region_composition > 62
 
+'''
+find_polya_sequence: attempts to find a polyadenylation sequence after
+    a given index
+
+Parameters:
+    sequence: a string of nucleotides to look within
+    stop_index: the index of the end of the orf to look after
+
+Returns: True if a polyadenylation sequence is found, False if not
+'''
 def find_polya_sequence(sequence, stop_index):
 
     for i in range(stop_index, stop_index + 140):
