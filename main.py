@@ -67,9 +67,11 @@ def main():
     print("The p-value is " + str(ourStats.pvalue))
 
     if ourStats.pvalue < 0.05:
-        print("Our program did statistically significantly better!  Woot!")
+        print("Our program did statistically significantly better at"
+              + " picking the correct RF than a randomly picked RF.")
     else:
-        print("We did not do statistically significantly better than random")
+        print("Our program did NOT do statistically significantly better at"
+              + " picking the correct RF than a randomly picked RF.")
 
 
 '''
@@ -115,7 +117,8 @@ def find_best_reading_frame( rfs ):
     best_rf = rf_scores.index( max( rf_scores ) )
 
     print( "Reading frame scores: ", rf_scores )
-    print( "So, best reading frame guess is RF" + str( convert_rf_index( best_rf ) ) )
+    print( "So, best reading frame guess is RF"
+           + str( convert_rf_index( best_rf ) ) )
     print()
 
     return best_rf
