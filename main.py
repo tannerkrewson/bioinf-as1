@@ -208,6 +208,9 @@ def score_orf ( bases, orf_start, orf_stop ):
     if at_rich_check( bases, "stop", orf_stop ):
         score += 1
 
+    if find_polya_sequence(bases, orf_stop):
+        score += 1
+
     return score
 
     
@@ -281,7 +284,23 @@ def at_rich_check(sequence, check_type, start_index, stop_index = 0):
     if check_type == "intron":
         return region_composition > 70
     else:
-        return region_composition > 63
+        return region_composition > 62
+
+def find_polya_sequence(sequence, stop_index):
+
+    for i in range(stop_index, stop_index + 140):
+        polya_sequence = sequence[i:i + 6]
+
+        is_polya_sequence = polya_sequence == "AATAAA" or \
+                            polya_sequence == "AAAAAA" or \
+                            polya_sequence == "TATGTA" or \
+                            polya_sequence == "TATATA" or \
+                            polya_sequence == "TACATA"
+
+        if is_polya_sequence:
+            return True
+
+    return False
 
 
 '''
