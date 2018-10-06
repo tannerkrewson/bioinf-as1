@@ -187,7 +187,9 @@ def score_orf ( bases, orf_start, orf_stop ):
     # 50-99:   1 point
     # 100-149: 2 points
     # 150-199: 3 points
-    # 200+:    4 points
+    # 200-249: 4 points
+    # 250+:    5 points
+
 
     if orf_length >= 50*3:
         score += 1
