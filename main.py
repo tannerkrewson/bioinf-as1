@@ -363,10 +363,13 @@ def remove_introns( dna ):
                 intron_list.append([pos_last_start, pos_end])
 
     total_introns_length = 0
+    #removes all of the introns from the dna sequence
     for intron_pair in intron_list:
+        #subtracts the total removed intron length from the intron's indices
         intron_pair[0] -= total_introns_length
         intron_pair[1] -= total_introns_length
         dna = dna[:intron_pair[0]] + dna[intron_pair[1]:]
+        #adds the removed intron's length to the new length to subtract
         total_introns_length += intron_pair[1] - intron_pair[0]
             
     return dna
